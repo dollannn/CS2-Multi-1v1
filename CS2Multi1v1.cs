@@ -355,7 +355,8 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
 
     public void SetupArenasIfNeeded()
     {
-        if (Server.MapName == "aim_redline_fp" && !_aimMapLoaded)
+        // If the map is in the config and the aim map has not been loaded yet, load it
+        if (Config.Maps.Contains(Server.MapName) && !_aimMapLoaded)
         {
             List<Tuple<SpawnPoint, SpawnPoint>> arenasSpawns = getArenasSpawns();
             _rankedArenas.Clear();
