@@ -69,3 +69,4 @@ jobs:
           tag: 'build-${{ env.BUILD_NUMBER }}'
           body: |
             Place the plugin in game/csgo/addons/counterstrikesharp/plugins/CS2Multi1v1
+            Note: This is a development build and may not be stable.
