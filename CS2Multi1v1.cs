@@ -27,18 +27,6 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
 
     public CS2Multi1v1Config Config { get; set; } = new();
 
-    public void OnConfigParsed(CS2Multi1v1Config config)
-    {
-        Config = config;
-    }
-
-    // public CS2Multi1v1()
-    // {
-    //     _aimMapLoaded = false;
-    //     _waitingArenaPlayers = new Queue<ArenaPlayer>();
-    //     _rankedArenas = new List<Arena>();
-    // }
-
     public override void Load(bool hotReload)
     {
         Instance = this;
@@ -46,13 +34,18 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
 
         _logger.LogInformation("Loaded CS2Multi1v1!");
 
-
+        RegisterEvents();
 
         if (hotReload)
         {
             _logger.LogInformation("Detected hot reload...");
             // requeue/calc spawns??
         }
+    }
+
+    public void OnConfigParsed(CS2Multi1v1Config config)
+    {
+        Config = config;
     }
 
     private void RegisterEvents()
