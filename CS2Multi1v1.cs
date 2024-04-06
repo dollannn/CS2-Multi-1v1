@@ -14,7 +14,7 @@ public class CS2Multi1v1 : BasePlugin
 {
     public override string ModuleName => "CS2Multi1v1";
     public override string ModuleVersion => "beta_1.0.0";
-    public override string ModuleAuthor => "rockCityMath";
+    public override string ModuleAuthor => "rockCityMath, dollan";
     public override string ModuleDescription => "Supports multiple automatic 1v1 arenas with rank climbing.";
 
     private bool _aimMapLoaded;
@@ -138,7 +138,7 @@ public class CS2Multi1v1 : BasePlugin
         }
 
         // Middle arenas have loser from higher arena, and winner from lower arena
-        while(arenaWinners.Count > 0)
+        while (arenaWinners.Count > 0)
         {
             var player = arenaWinners.Dequeue();
             rankedPlayers.Enqueue(player);
@@ -152,20 +152,20 @@ public class CS2Multi1v1 : BasePlugin
         }
 
         // If there are any remaining losers, add them
-        while(arenaLosers.Count > 0)
+        while (arenaLosers.Count > 0)
         {
             rankedPlayers.Enqueue(arenaLosers.Dequeue());
         }
 
         // Add waiting users to the back of the queue
-        while(_waitingArenaPlayers.Count > 0)
+        while (_waitingArenaPlayers.Count > 0)
         {
             ArenaPlayer arenaPlayer = _waitingArenaPlayers.Dequeue();
             rankedPlayers.Enqueue(arenaPlayer);
         }
 
         _logger.LogInformation("Ranked Queue: ");
-        foreach(ArenaPlayer p in rankedPlayers)
+        foreach (ArenaPlayer p in rankedPlayers)
         {
             _logger.LogInformation(p.PlayerController.PlayerName);
         }
@@ -174,7 +174,7 @@ public class CS2Multi1v1 : BasePlugin
         Shuffle(_rankedArenas);
 
         int currentArenaIndex = 0;
-        while(currentArenaIndex < _rankedArenas.Count)
+        while (currentArenaIndex < _rankedArenas.Count)
         {
             // If 2+ players in ranked queue, add both to current arena
             if (rankedPlayers.Count > 1)
@@ -208,7 +208,7 @@ public class CS2Multi1v1 : BasePlugin
 
     public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
-        foreach(Arena arena in _rankedArenas) arena.OnRoundEnd();
+        foreach (Arena arena in _rankedArenas) arena.OnRoundEnd();
         return HookResult.Continue;
     }
 
@@ -228,13 +228,13 @@ public class CS2Multi1v1 : BasePlugin
 
     public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
-        foreach(Arena arena in _rankedArenas) arena.OnPlayerDeath(@event.Userid);
+        foreach (Arena arena in _rankedArenas) arena.OnPlayerDeath(@event.Userid);
         return HookResult.Continue;
     }
 
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
-        foreach(Arena arena in _rankedArenas) arena.OnPlayerSpawn(@event.Userid);
+        foreach (Arena arena in _rankedArenas) arena.OnPlayerSpawn(@event.Userid);
         return HookResult.Continue;
     }
 
@@ -268,10 +268,10 @@ public class CS2Multi1v1 : BasePlugin
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnShowQueue(CCSPlayerController? player, CommandInfo commandInfo)
     {
-        if(player == null || !player.IsValid) return;
+        if (player == null || !player.IsValid) return;
 
         player.PrintToChat("Current Queue: ");
-        foreach(ArenaPlayer p in _waitingArenaPlayers)
+        foreach (ArenaPlayer p in _waitingArenaPlayers)
         {
             player.PrintToChat(p.PlayerController.PlayerName);
         }
@@ -285,9 +285,9 @@ public class CS2Multi1v1 : BasePlugin
     {
         SetupArenasIfNeeded();
         _waitingArenaPlayers.Clear();
-        foreach(Arena arena in _rankedArenas) arena.AddPlayers(null, null);
+        foreach (Arena arena in _rankedArenas) arena.AddPlayers(null, null);
 
-        foreach(CCSPlayerController playerController in Utilities.GetPlayers())
+        foreach (CCSPlayerController playerController in Utilities.GetPlayers())
         {
             if (playerController.IsValid && playerController.Connected == PlayerConnectedState.PlayerConnected)
             {
@@ -304,7 +304,7 @@ public class CS2Multi1v1 : BasePlugin
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnArenaInfo(CCSPlayerController? player, CommandInfo commandInfo)
     {
-        foreach(Arena arena in _rankedArenas)
+        foreach (Arena arena in _rankedArenas)
         {
             arena.LogCurrentInfo();
         }
@@ -317,7 +317,7 @@ public class CS2Multi1v1 : BasePlugin
     public void OnAsize(CCSPlayerController? player, CommandInfo commandInfo)
     {
         List<Tuple<SpawnPoint, SpawnPoint>> arenasSpawns = getArenasSpawns();
-        foreach(Arena arena in _rankedArenas) arena.AddPlayers(null, null); // Neccesary to prevent memory leaks?
+        foreach (Arena arena in _rankedArenas) arena.AddPlayers(null, null); // Neccesary to prevent memory leaks?
         _rankedArenas.Clear();
 
         int count = 0;
