@@ -348,8 +348,7 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnEndRound(CCSPlayerController? player, CommandInfo commandInfo)
     {
-        var gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
-        gameRules.TerminateRound(3.0f, RoundEndReason.CTsWin);
+        Helper.EndRound();
     }
 
     // ---------------------------------- UTIL ---------------------------------------//
