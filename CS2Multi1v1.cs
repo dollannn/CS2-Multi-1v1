@@ -10,31 +10,53 @@ using CounterStrikeSharp.API.Modules.Admin;
 
 namespace CS2Multi1v1;
 
-public class CS2Multi1v1 : BasePlugin
+public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
 {
+
+    public static CS2Multi1v1 Instance { get; private set; } = new();
     public override string ModuleName => "CS2Multi1v1";
     public override string ModuleVersion => "beta_1.0.0";
     public override string ModuleAuthor => "rockCityMath, dollan";
     public override string ModuleDescription => "Supports multiple automatic 1v1 arenas with rank climbing.";
 
-    private bool _aimMapLoaded;
+    private bool _aimMapLoaded = false;
 
-    private ILogger<CS2Multi1v1> _logger;
-    private Queue<ArenaPlayer> _waitingArenaPlayers;
-    private List<Arena> _rankedArenas;
+    internal static ILogger? _logger;
+    private Queue<ArenaPlayer> _waitingArenaPlayers = new Queue<ArenaPlayer>();
+    private List<Arena> _rankedArenas = new List<Arena>();
 
-    public CS2Multi1v1(ILogger<CS2Multi1v1> logger)
+    public CS2Multi1v1Config Config { get; set; } = new();
+
+    public void OnConfigParsed(CS2Multi1v1Config config)
     {
-        _aimMapLoaded = false;
-        _logger = logger;
-        _waitingArenaPlayers = new Queue<ArenaPlayer>();
-        _rankedArenas = new List<Arena>();
+        Config = config;
     }
+
+    // public CS2Multi1v1()
+    // {
+    //     _aimMapLoaded = false;
+    //     _waitingArenaPlayers = new Queue<ArenaPlayer>();
+    //     _rankedArenas = new List<Arena>();
+    // }
 
     public override void Load(bool hotReload)
     {
+        Instance = this;
+        _logger = Logger;
+
         _logger.LogInformation("Loaded CS2Multi1v1!");
 
+
+
+        if (hotReload)
+        {
+            _logger.LogInformation("Detected hot reload...");
+            // requeue/calc spawns??
+        }
+    }
+
+    private void RegisterEvents()
+    {
         RegisterEventHandler<EventGameNewmap>(OnGameNewmap);
         RegisterEventHandler<EventGameStart>(OnGameStart);
         RegisterEventHandler<EventMapTransition>(OnMapTransition);
@@ -47,12 +69,6 @@ public class CS2Multi1v1 : BasePlugin
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
-
-        if (hotReload)
-        {
-            _logger.LogInformation("Detected hot reload...");
-            // requeue/calc spawns??
-        }
     }
 
     // ----------------------------- SERVER RELATED GAME EVENT HOOKS -------------------------------------//
@@ -321,7 +337,7 @@ public class CS2Multi1v1 : BasePlugin
         int count = 0;
         foreach (Tuple<SpawnPoint, SpawnPoint> arenaSpawns in arenasSpawns)
         {
-            Arena arena = new Arena(_logger, arenaSpawns);
+            Arena arena = new Arena(_logger!, arenaSpawns);
             _rankedArenas.Add(arena);
             count++;
         }

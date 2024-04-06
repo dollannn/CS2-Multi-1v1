@@ -11,7 +11,7 @@ internal class Arena
     private Tuple<SpawnPoint, SpawnPoint> _spawns;
     private int _rank;
     private RoundType _roundType;
-    private ILogger<CS2Multi1v1> _logger;
+    private ILogger _logger;
 
     public ArenaPlayer? _player1;
     private int _player1Kills;
@@ -20,7 +20,7 @@ internal class Arena
     public ArenaPlayer? _player2; // these should be private, use util methods for interation
     private int _player2Kills;
 
-    public Arena(ILogger<CS2Multi1v1> logger, Tuple<SpawnPoint, SpawnPoint> spawns)
+    public Arena(ILogger logger, Tuple<SpawnPoint, SpawnPoint> spawns)
     {
         _spawns = spawns;
         _rank = 0;
