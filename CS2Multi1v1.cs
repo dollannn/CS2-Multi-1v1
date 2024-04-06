@@ -84,7 +84,7 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
     public HookResult OnPlayerActivate(EventPlayerActivate @event, GameEventInfo info)
     {
         CCSPlayerController playerController = @event.Userid;
-        _logger.LogInformation($"Player Activated: {playerController.Connected.ToString()}");
+        _logger?.LogInformation($"Player Activated: {playerController.Connected.ToString()}");
 
         if (!playerController.IsValid) return HookResult.Continue;
         if (_rankedArenas.Where(x => x?._player1?.PlayerController == playerController).FirstOrDefault() != null) return HookResult.Continue;
@@ -94,7 +94,7 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
 
         ArenaPlayer arenaPlayer = new ArenaPlayer(playerController);
         _waitingArenaPlayers.Enqueue(arenaPlayer);
-        _logger.LogInformation($"Player {arenaPlayer.PlayerController.PlayerName} added to waiting queue.");
+        _logger?.LogInformation($"Player {arenaPlayer.PlayerController.PlayerName} added to waiting queue.");
         arenaPlayer.PrintToChat($"{ChatColors.Gold}You have been added to the waiting queue.");
         arenaPlayer.PrintToChat($"{ChatColors.Gold}Type {ChatColors.LightRed}!help{ChatColors.Gold} in chat to see info.");
 
@@ -114,7 +114,7 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
         Queue<ArenaPlayer> arenaWinners = new Queue<ArenaPlayer>();
         Queue<ArenaPlayer> arenaLosers = new Queue<ArenaPlayer>();
 
-        _logger.LogInformation("Prestart triggered");
+        _logger?.LogInformation("Prestart triggered");
 
         // Get winner and loser from each arena and add to appropriate queue | Going from arena 1 down
         foreach (Arena arena in _rankedArenas)
@@ -172,10 +172,10 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
             rankedPlayers.Enqueue(arenaPlayer);
         }
 
-        _logger.LogInformation("Ranked Queue: ");
+        _logger?.LogInformation("Ranked Queue: ");
         foreach (ArenaPlayer p in rankedPlayers)
         {
-            _logger.LogInformation(p.PlayerController.PlayerName);
+            _logger?.LogInformation(p.PlayerController.PlayerName);
         }
 
         // Shuffle arenas (gives player varied spawnpoints)
@@ -364,7 +364,7 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
             int count = 0;
             foreach (Tuple<SpawnPoint, SpawnPoint> arenaSpawns in arenasSpawns)
             {
-                Arena arena = new Arena(_logger, arenaSpawns);
+                Arena arena = _logger != null ? new Arena(_logger, arenaSpawns) : throw new ArgumentNullException(nameof(_logger));
                 _rankedArenas.Add(arena);
                 count++;
             }
