@@ -13,7 +13,7 @@ on:
 
 env:
   BUILD_NUMBER: ${{ github.run_number }}
-  PROJECT_PATH: 'CS2Multi1v1.csproj'
+  PROJECT_PATH: 'CS2-Multi-1v1.csproj'
   PROJECT_NAME: 'CS2Multi1v1'
   OUTPUT_PATH: './CS2Multi1v1'
 
