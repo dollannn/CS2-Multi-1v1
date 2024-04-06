@@ -183,8 +183,8 @@ internal class Arena
         if (isP1Valid() || isP2Valid())
         {
             _logger.LogInformation($"------ ARENA {_rank} -----");
-            if (isP1Valid()) _logger.LogInformation($"Player1: {_player1.PlayerController.PlayerName}");
-            if (isP2Valid()) _logger.LogInformation($"Player2: {_player2.PlayerController.PlayerName}");
+            if (isP1Valid()) _logger.LogInformation($"Player1: {_player1?.PlayerController.PlayerName}");
+            if (isP2Valid()) _logger.LogInformation($"Player2: {_player2?.PlayerController.PlayerName}");
             _logger.LogInformation($"Round Type: {_roundType.Name}");
         }
     }
