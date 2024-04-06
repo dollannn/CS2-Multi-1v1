@@ -88,7 +88,6 @@ public class CS2Multi1v1 : BasePlugin
         _logger.LogInformation($"Player {arenaPlayer.PlayerController.PlayerName} added to waiting queue.");
         arenaPlayer.PrintToChat($"{ChatColors.Gold}You have been added to the waiting queue.");
         arenaPlayer.PrintToChat($"{ChatColors.Gold}Type {ChatColors.LightRed}!help{ChatColors.Gold} in chat to see info.");
-        arenaPlayer.PrintToChat($"Please message {ChatColors.LightRed}@easy.rs{ChatColors.Gold} on Discord with any feedback.");
 
         return HookResult.Continue;
     }
@@ -259,7 +258,6 @@ public class CS2Multi1v1 : BasePlugin
         PrintToChatCustom(player, "--- Round types are random.");
         PrintToChatCustom(player, "--- Challenging players is not supported yet.");
         PrintToChatCustom(player, "--- Selecting guns is not supported yet.");
-        PrintToChatCustom(player, $"--- Please message {ChatColors.LightRed}@easy.rs{ChatColors.Default} on Discord with any feedback or bugs.");
     }
 
     // Show current players in waiting queue

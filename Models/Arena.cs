@@ -81,7 +81,7 @@ internal class Arena
             _player2?.PrintToChat($"Round Type: {ChatColors.Gold}{_roundType.Name}");
             _player2?.PrintToChat($"Opponent:   {ChatColors.Gold}{opponentName}");
 
-            _player2!.PlayerController.Clan = $"ARENA {_rank}";
+            _player2!.PlayerController.Clan = $"Arena {_rank} |";
         }
 
         LogCurrentInfo();
