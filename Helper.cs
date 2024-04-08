@@ -15,5 +15,10 @@ namespace CS2Multi1v1
             gameRules.TerminateRound(3.0f, RoundEndReason.CTsWin);
 
         }
+        public static List<CCSPlayerController> GetValidPlayers()
+        {
+            return Utilities.GetPlayers().FindAll(p => p != null && p.IsValid && p.SteamID.ToString().Length == 17 && !string.IsNullOrEmpty(p.IpAddress) && p.Connected == PlayerConnectedState.PlayerConnected && !p.IsBot && !p.IsHLTV);
+        }
     }
+
 }

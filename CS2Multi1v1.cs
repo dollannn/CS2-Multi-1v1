@@ -86,14 +86,23 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
         CCSPlayerController playerController = @event.Userid;
         _logger?.LogInformation($"Player Activated: {playerController.Connected.ToString()}");
 
+
+
         if (!playerController.IsValid) return HookResult.Continue;
-        if (_rankedArenas.Where(x => x?._player1?.PlayerController == playerController).FirstOrDefault() != null) return HookResult.Continue;
-        if (_rankedArenas.Where(x => x?._player2?.PlayerController == playerController).FirstOrDefault() != null) return HookResult.Continue;
-
+        if (playerController.Connected != PlayerConnectedState.PlayerConnected) return HookResult.Continue;
+        if (!playerController.Pawn.IsValid) return HookResult.Continue;
+        if (_rankedArenas.FirstOrDefault(x => x?._player1?.PlayerController == playerController) != null) return HookResult.Continue;
+        if (_rankedArenas.FirstOrDefault(x => x?._player2?.PlayerController == playerController) != null) return HookResult.Continue;
         playerController.ChangeTeam(CsTeam.Spectator);
-
         ArenaPlayer arenaPlayer = new ArenaPlayer(playerController);
         _waitingArenaPlayers.Enqueue(arenaPlayer);
+        // If all players are in the waiting queue, end the round
+        if (Helper.GetValidPlayers().Count == _waitingArenaPlayers.Count)
+        {
+            Helper.EndRound();
+        }
+
+
         _logger?.LogInformation($"Player {arenaPlayer.PlayerController.PlayerName} added to waiting queue.");
         arenaPlayer.PrintToChat($"{ChatColors.Gold}You have been added to the waiting queue.");
         arenaPlayer.PrintToChat($"{ChatColors.Gold}Type {ChatColors.LightRed}!help{ChatColors.Gold} in chat to see info.");
@@ -111,8 +120,8 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
 
     public HookResult OnRoundPrestart(EventRoundPrestart @event, GameEventInfo info)
     {
-        Queue<ArenaPlayer> arenaWinners = new Queue<ArenaPlayer>();
-        Queue<ArenaPlayer> arenaLosers = new Queue<ArenaPlayer>();
+        Queue<ArenaPlayer> arenaWinners = new();
+        Queue<ArenaPlayer> arenaLosers = new();
 
         _logger?.LogInformation("Prestart triggered");
 
