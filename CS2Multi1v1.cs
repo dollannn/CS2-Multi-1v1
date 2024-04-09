@@ -50,9 +50,6 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
 
     private void RegisterEvents()
     {
-        RegisterEventHandler<EventGameNewmap>(OnGameNewmap);
-        RegisterEventHandler<EventGameStart>(OnGameStart);
-        RegisterEventHandler<EventMapTransition>(OnMapTransition);
         RegisterEventHandler<EventPlayerActivate>(OnPlayerActivate);
         RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         RegisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
@@ -61,25 +58,9 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
         RegisterEventHandler<EventPlayerTeam>(OnPlayerTeam, HookMode.Pre);
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
-        RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
     }
 
     // ----------------------------- SERVER RELATED GAME EVENT HOOKS -------------------------------------//
-
-    public HookResult OnGameNewmap(EventGameNewmap @event, GameEventInfo info)
-    {
-        return HookResult.Continue;
-    }
-
-    private HookResult OnGameStart(EventGameStart @event, GameEventInfo info)
-    {
-        return HookResult.Continue;
-    }
-
-    public HookResult OnMapTransition(EventMapTransition @event, GameEventInfo info)
-    {
-        return HookResult.Continue;
-    }
 
     public HookResult OnPlayerActivate(EventPlayerActivate @event, GameEventInfo info)
     {
@@ -188,7 +169,7 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
         }
 
         // Shuffle arenas (gives player varied spawnpoints)
-        Shuffle(_rankedArenas);
+        Helper.Shuffle(_rankedArenas);
 
         int currentArenaIndex = 0;
         while (currentArenaIndex < _rankedArenas.Count)
@@ -215,11 +196,6 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
             }
         }
 
-        return HookResult.Continue;
-    }
-
-    public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
-    {
         return HookResult.Continue;
     }
 
@@ -252,11 +228,6 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         foreach (Arena arena in _rankedArenas) arena.OnPlayerSpawn(@event.Userid);
-        return HookResult.Continue;
-    }
-
-    public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
-    {
         return HookResult.Continue;
     }
 
@@ -400,7 +371,7 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
                 var ctVec = ctSpawn.CBodyComponent!.SceneNode!.AbsOrigin;
                 var tVec = tSpawn.CBodyComponent!.SceneNode!.AbsOrigin;
 
-                float distance = DistanceTo(ctVec, tVec);
+                float distance = Helper.DistanceTo(ctVec, tVec);
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
@@ -416,25 +387,10 @@ public class CS2Multi1v1 : BasePlugin, IPluginConfig<CS2Multi1v1Config>
         return spawnPairs;
     }
 
-    private float DistanceTo(Vector a, Vector b)
-    {
-        return (float)Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2) + Math.Pow(a.Z - b.Z, 2));
-    }
 
-    // In-place shuffle
-    public static void Shuffle<T>(IList<T> list)
-    {
-        Random rng = new Random();
-        int n = list.Count;
-        while (n > 1)
-        {
-            n--;
-            int k = rng.Next(n + 1);
-            T value = list[k];
-            list[k] = list[n];
-            list[n] = value;
-        }
-    }
+
+
+
 
     public void PrintToChatCustom(CCSPlayerController playerController, string text)
     {
