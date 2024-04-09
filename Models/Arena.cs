@@ -13,6 +13,8 @@ internal class Arena
     private RoundType _roundType;
     private ILogger _logger;
 
+    private bool _isArenaActive;
+
     public ArenaPlayer? _player1;
     private int _player1Kills;
     private bool _player1HasLastKill;
@@ -25,6 +27,7 @@ internal class Arena
         _spawns = spawns;
         _rank = 0;
         _logger = logger;
+        _isArenaActive = false;
         _player1Kills = 0;
         _player1HasLastKill = true;
         _player2Kills = 0;
@@ -89,6 +92,8 @@ internal class Arena
 
     public void OnPlayerSpawn(CCSPlayerController playerController)
     {
+        _isArenaActive = anyPValid();
+
         bool wasPlayer1 = isPValid(_player1) && _player1!.PlayerController == playerController;
         bool wasPlayer2 = isPValid(_player2) && _player2!.PlayerController == playerController;
 
@@ -112,39 +117,30 @@ internal class Arena
                 p2Spawn = _spawns.Item1;
             }
 
-            if (isPValid(_player1))
+            // Prepare the players
+            PreparePlayer(_player1, p1Spawn, _roundType);
+            PreparePlayer(_player2, p2Spawn, _roundType);
+        }
+    }
+
+    private void PreparePlayer(ArenaPlayer? player, SpawnPoint spawnPoint, RoundType roundType)
+    {
+        if (isPValid(player))
+        {
+            // Get spawnpoint from the arena
+            Vector? pos = spawnPoint.AbsOrigin;
+            QAngle? angle = spawnPoint.AbsRotation;
+            Vector? velocity = new Vector(0, 0, 0);
+
+            // Teleport player there
+            if (pos != null && angle != null)
             {
-                // Get spawnpoint from the arena
-                Vector? pos = p1Spawn.AbsOrigin;
-                QAngle? angle = p1Spawn.AbsRotation;
-                Vector? velocity = new Vector(0, 0, 0);
-
-                // Teleport player there
-                if (pos != null && angle != null)
-                {
-                    _player1?.PlayerController?.Pawn.Value?.Teleport(pos, angle, velocity);
-                }
-
-                // Reset weapons and health
-                _player1!.ResetPlayerWeapons(_roundType);
-                _player1!.PlayerController!.Pawn!.Value!.Health = 100;
+                player?.PlayerController?.Pawn.Value?.Teleport(pos, angle, velocity);
             }
 
-            if (isPValid(_player2))
-            {
-                // Get spawnpoint from the arena
-                Vector? pos = p2Spawn.AbsOrigin;
-                QAngle? angle = p2Spawn.AbsRotation;
-                Vector? velocity = new Vector(0, 0, 0);
-
-                // Teleport player there
-                if (pos != null && angle != null)
-                {
-                    _player2!.PlayerController!.Pawn.Value?.Teleport(pos, angle, velocity);
-                }
-                _player2!.ResetPlayerWeapons(_roundType);
-                _player2!.PlayerController!.Pawn!.Value!.Health = 100;
-            }
+            // Reset weapons and health
+            player!.ResetPlayerWeapons(roundType);
+            player!.PlayerController!.Pawn!.Value!.Health = 100;
         }
     }
 
@@ -180,7 +176,7 @@ internal class Arena
 
     public void LogCurrentInfo()
     {
-        if (isPValid(_player1) || isPValid(_player2))
+        if (_isArenaActive)
         {
             _logger.LogInformation($"------ ARENA {_rank} -----");
             if (isPValid(_player1)) _logger.LogInformation($"Player1: {_player1?.PlayerController.PlayerName}");
@@ -191,29 +187,15 @@ internal class Arena
 
     public void OnRoundEnd()
     {
-        // Notify player of win/loss
         if (isPValid(_player1) && isPValid(_player2))
         {
-            if (_player1Kills > _player2Kills)
-            {
-                _player1!.PrintToChat($"{ChatColors.Green}You won!");
-                _player2!.PrintToChat($"{ChatColors.Red}You lost!");
-            }
-            else if (_player2Kills > _player1Kills)
-            {
-                _player2!.PrintToChat($"{ChatColors.Green}You won!");
-                _player1!.PrintToChat($"{ChatColors.Red}You lost!");
-            }
-            else if (_player1HasLastKill)
-            {
-                _player1!.PrintToChat($"{ChatColors.Green}You won!");
-                _player2!.PrintToChat($"{ChatColors.Red}You lost!");
-            }
-            else
-            {
-                _player2!.PrintToChat($"{ChatColors.Green}You won!");
-                _player1!.PrintToChat($"{ChatColors.Red}You lost!");
-            }
+            string loserMsg = $"{ChatColors.Red}You lost!";
+            string winnerMsg = $"{ChatColors.Green}You won!";
+            string winnerMessage = _player1Kills > _player2Kills ? winnerMsg : loserMsg;
+            string loserMessage = _player1Kills > _player2Kills ? loserMsg : winnerMsg;
+
+            _player1!.PrintToChat(winnerMessage);
+            _player2!.PrintToChat(loserMessage);
         }
     }
 
@@ -240,18 +222,12 @@ internal class Arena
             }
         }
 
-        // If player1 was valid, give them the win
-        if (isPValid(_player1))
+        // If player1 or player2 was valid, give them the win
+        if (_isArenaActive)
         {
-            return new ArenaResult(ArenaResultType.NoOpponent, _player1, null);
+            ArenaPlayer? winner = isPValid(_player1) ? _player1 : _player2;
+            return new ArenaResult(ArenaResultType.NoOpponent, winner, null);
         }
-
-        // If player2 was valid, give them the win
-        if (isPValid(_player2))
-        {
-            return new ArenaResult(ArenaResultType.NoOpponent, _player2, null);
-        }
-
         // If this point is reached, the arena either started with or now has no players
         return new ArenaResult(ArenaResultType.Empty, null, null);
     }
@@ -259,5 +235,10 @@ internal class Arena
     private bool isPValid(ArenaPlayer? player)
     {
         return player != null && player.PlayerController.IsValid && player.PlayerController.Connected == PlayerConnectedState.PlayerConnected && player.PlayerController.Pawn.IsValid;
+    }
+
+    private bool anyPValid()
+    {
+        return isPValid(_player1) || isPValid(_player2);
     }
 }
