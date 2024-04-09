@@ -56,12 +56,12 @@ internal class Arena
         _roundType = roundTypes[roundTypeIndex];
 
         // Set player teams, notify of arena and opponent
-        if (isP1Valid())
+        if (isPValid(_player1))
         {
             _logger.LogInformation("Switch p1 team..");
             _player1?.PlayerController.SwitchTeam(CsTeam.Terrorist);
 
-            string opponentName = isP2Valid() ? _player2!.PlayerController.PlayerName : "No Opponent";
+            string opponentName = isPValid(_player2) ? _player2!.PlayerController.PlayerName : "No Opponent";
 
             _player1?.PrintToChat($"Arena:      {ChatColors.Gold}{_rank}");
             _player1?.PrintToChat($"Round Type: {ChatColors.Gold}{_roundType.Name}");
@@ -70,12 +70,12 @@ internal class Arena
             _player1!.PlayerController.Clan = $"Arena {_rank} | ";
         }
 
-        if (isP2Valid())
+        if (isPValid(_player2))
         {
             _logger.LogInformation("Switch p2 team..");
             _player2?.PlayerController.SwitchTeam(CsTeam.CounterTerrorist);
 
-            string opponentName = isP1Valid() ? _player1!.PlayerController.PlayerName : "No Opponent";
+            string opponentName = isPValid(_player1) ? _player1!.PlayerController.PlayerName : "No Opponent";
 
             _player2?.PrintToChat($"Arena:      {ChatColors.Gold}{_rank}");
             _player2?.PrintToChat($"Round Type: {ChatColors.Gold}{_roundType.Name}");
@@ -89,8 +89,8 @@ internal class Arena
 
     public void OnPlayerSpawn(CCSPlayerController playerController)
     {
-        bool wasPlayer1 = isP1Valid() && _player1!.PlayerController == playerController;
-        bool wasPlayer2 = isP2Valid() && _player2!.PlayerController == playerController;
+        bool wasPlayer1 = isPValid(_player1) && _player1!.PlayerController == playerController;
+        bool wasPlayer2 = isPValid(_player2) && _player2!.PlayerController == playerController;
 
         // If a player in this arena respawned
         if (wasPlayer1 || wasPlayer2)
@@ -112,7 +112,7 @@ internal class Arena
                 p2Spawn = _spawns.Item1;
             }
 
-            if (isP1Valid())
+            if (isPValid(_player1))
             {
                 // Get spawnpoint from the arena
                 Vector? pos = p1Spawn.AbsOrigin;
@@ -130,7 +130,7 @@ internal class Arena
                 _player1!.PlayerController!.Pawn!.Value!.Health = 100;
             }
 
-            if (isP2Valid())
+            if (isPValid(_player2))
             {
                 // Get spawnpoint from the arena
                 Vector? pos = p2Spawn.AbsOrigin;
@@ -151,7 +151,7 @@ internal class Arena
     // Show both players opponent's and their own kills
     private void showPlayersCurrentScore()
     {
-        if (isP1Valid() && isP2Valid())
+        if (isPValid(_player1) && isPValid(_player2))
         {
             _player1?.PrintToChat($"You: {ChatColors.Green}{_player1Kills}{ChatColors.Default} | {_player2?.PlayerController.PlayerName}: {ChatColors.LightRed}{_player2Kills}");
             _player2?.PrintToChat($"You: {ChatColors.Green}{_player2Kills}{ChatColors.Default} | {_player1?.PlayerController.PlayerName}: {ChatColors.LightRed}{_player1Kills}");
@@ -160,8 +160,8 @@ internal class Arena
 
     public void OnPlayerDeath(CCSPlayerController playerController)
     {
-        bool wasPlayer1 = isP1Valid() && _player1!.PlayerController == playerController;
-        bool wasPlayer2 = isP2Valid() && _player2!.PlayerController == playerController;
+        bool wasPlayer1 = isPValid(_player1) && _player1!.PlayerController == playerController;
+        bool wasPlayer2 = isPValid(_player2) && _player2!.PlayerController == playerController;
 
         if (wasPlayer2)
         {
@@ -180,11 +180,11 @@ internal class Arena
 
     public void LogCurrentInfo()
     {
-        if (isP1Valid() || isP2Valid())
+        if (isPValid(_player1) || isPValid(_player2))
         {
             _logger.LogInformation($"------ ARENA {_rank} -----");
-            if (isP1Valid()) _logger.LogInformation($"Player1: {_player1?.PlayerController.PlayerName}");
-            if (isP2Valid()) _logger.LogInformation($"Player2: {_player2?.PlayerController.PlayerName}");
+            if (isPValid(_player1)) _logger.LogInformation($"Player1: {_player1?.PlayerController.PlayerName}");
+            if (isPValid(_player2)) _logger.LogInformation($"Player2: {_player2?.PlayerController.PlayerName}");
             _logger.LogInformation($"Round Type: {_roundType.Name}");
         }
     }
@@ -192,7 +192,7 @@ internal class Arena
     public void OnRoundEnd()
     {
         // Notify player of win/loss
-        if (isP1Valid() && isP2Valid())
+        if (isPValid(_player1) && isPValid(_player2))
         {
             if (_player1Kills > _player2Kills)
             {
@@ -220,7 +220,7 @@ internal class Arena
     public ArenaResult GetArenaResult()
     {
         // If both players valid, use normal logic to determine winner
-        if (isP1Valid() && isP2Valid())
+        if (isPValid(_player1) && isPValid(_player2))
         {
             if (_player1Kills > _player2Kills)
             {
@@ -241,13 +241,13 @@ internal class Arena
         }
 
         // If player1 was valid, give them the win
-        if (isP1Valid())
+        if (isPValid(_player1))
         {
             return new ArenaResult(ArenaResultType.NoOpponent, _player1, null);
         }
 
         // If player2 was valid, give them the win
-        if (isP2Valid())
+        if (isPValid(_player2))
         {
             return new ArenaResult(ArenaResultType.NoOpponent, _player2, null);
         }
@@ -256,13 +256,8 @@ internal class Arena
         return new ArenaResult(ArenaResultType.Empty, null, null);
     }
 
-    private bool isP1Valid()
+    private bool isPValid(ArenaPlayer? player)
     {
-        return _player1 != null && _player1.PlayerController.IsValid && _player1.PlayerController.Connected == PlayerConnectedState.PlayerConnected && _player1.PlayerController.Pawn.Value.IsValid;
-    }
-
-    private bool isP2Valid()
-    {
-        return _player2 != null && _player2.PlayerController.IsValid && _player2.PlayerController.Connected == PlayerConnectedState.PlayerConnected && _player2.PlayerController.Pawn.Value.IsValid;
+        return player != null && player.PlayerController.IsValid && player.PlayerController.Connected == PlayerConnectedState.PlayerConnected && player.PlayerController.Pawn.IsValid;
     }
 }
