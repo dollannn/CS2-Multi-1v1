@@ -1,4 +1,5 @@
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 
@@ -21,7 +22,7 @@ public class ArenaPlayer
     {
         string knifeName = EnumUtils.GetEnumMemberAttributeValue(CsItem.Knife) ?? "";
 
-        if (PlayerController?.Pawn?.Value?.IsValid == null || PlayerController.Pawn!.Value!.IsValid == false) return;
+        if (!Helper.IsPlayerValid(PlayerController)) return;
 
         // Remove default (spawn) weapons
         foreach (CHandle<CBasePlayerWeapon> weapon in PlayerController!.Pawn!.Value!.WeaponServices!.MyWeapons)

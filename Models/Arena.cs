@@ -232,13 +232,14 @@ internal class Arena
         return new ArenaResult(ArenaResultType.Empty, null, null);
     }
 
-    private bool isPValid(ArenaPlayer? player)
-    {
-        return player != null && player.PlayerController.IsValid && player.PlayerController.Connected == PlayerConnectedState.PlayerConnected && player.PlayerController.Pawn.IsValid;
-    }
 
     private bool anyPValid()
     {
         return isPValid(_player1) || isPValid(_player2);
+    }
+
+    private bool isPValid(ArenaPlayer? p)
+    {
+        return Helper.IsPlayerValid(p?.PlayerController);
     }
 }

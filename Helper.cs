@@ -38,6 +38,10 @@ namespace CS2Multi1v1
         {
             return (float)Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2) + Math.Pow(a.Z - b.Z, 2));
         }
+        public static bool IsPlayerValid(CCSPlayerController? p)
+        {
+            return p != null && p.IsValid && (p.SteamID.ToString().Length == 17 || (p.SteamID == 0 && p.IsBot)) && p.Connected == PlayerConnectedState.PlayerConnected && !p.IsHLTV;
+        }
     }
 
 }
